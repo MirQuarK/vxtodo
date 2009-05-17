@@ -1,0 +1,271 @@
+
+body{
+	margin:0;
+	padding:0;
+	font:10.5pt tahoma,sans-serif;
+	background:#dce9ec url('../img/back.gif');
+}
+
+a{
+	color:#66f;
+	text-decoration:none;
+}
+a:hover{
+	color:#09f;
+}
+form{
+	margin:0;
+	padding:0;
+}
+
+.clear{
+	clear:both;
+}
+.color0{
+	background:#eee;
+}
+.color0 .status{
+	background:transparent url('../img/status.png') no-repeat 0px 0px;
+}
+.color0 .todo{
+	background-position:0px -20px;
+}
+.color1{
+	background:#ffecec;
+}
+.color1 .status{
+	background:transparent url('../img/status.png') no-repeat -20px 0px;
+}
+.color1 .todo{
+	background-position:-20px -20px;
+}
+.color2{
+	background:#ddffcc;
+}
+.color2 .status{
+	background:transparent url('../img/status.png') no-repeat -40px 0px;
+}
+.color2 .todo{
+	background-position:-40px -20px;
+}
+.color3{
+	background:#fdff79;
+}
+.color3 .status{
+	background:transparent url('../img/status.png') no-repeat -60px 0px;
+}
+.color3 .todo{
+	background-position:-60px -20px;
+}
+.color4{
+	background:#ccecff;
+}
+.color4 .status{
+	background:transparent url('../img/status.png') no-repeat -80px 0px;
+}
+.color4 .todo{
+	background-position:-80px -20px;
+}
+
+#layout{
+	width:450px;
+	padding:5px 10px;
+	margin:10px auto;
+	border:1px solid #ccc;
+	background:#fff;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-khtml-border-radius:10px;
+	-webkit-border-radius: 10px;
+}
+
+#title{
+	/*border-bottom:1px solid #ccc;*/
+	margin:10px 0;
+	padding:0 10px;
+}
+#title h1{
+	padding:10px 0;
+	margin:0;
+	line-height:1.5em;
+	font-size:18pt;
+	font-weight:bold;
+}
+
+
+#nav{
+	text-align:right;
+	margin:0 0 10px;
+}
+
+#tab{
+	margin:0 10px 10px;
+}
+#tab #colorfilter{
+	float:right;
+}
+#tab #colorfilter a{
+	float:left;
+	width:20px;
+	height:20px;
+	border:1px solid #ccc;
+	margin:0 0 0 8px;
+}
+#tab #colorfilter a:hover{
+	border:1px solid #000;
+}
+#tab #colorfilter a.current{
+	border:1px solid #999;
+}
+#tab #statusfilter{
+	display:inline;
+}
+
+#status{
+	display:block;
+	margin:0 10px 5px;
+	padding:5px 10px;
+	border:1px solid #ccc;
+	clear:both;
+	background:#fff;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-khtml-border-radius:10px;
+	-webkit-border-radius:5px;
+	font-size:12pt;
+}
+
+#list{
+	margin:0 0 10px;
+	padding:0 10px;
+}
+#list #tasklist{
+	margin:10px 0 0;
+	padding:0;
+}
+#list .li{
+	display:block;
+	margin:0 0 5px;
+	padding:5px 10px;
+	border:1px solid #ccc;
+	clear:both;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-khtml-border-radius:10px;
+	-webkit-border-radius:5px;
+}
+#list .li .status{
+	width:20px;
+	height:20px;
+	margin:0 5px 0 0;
+	float:left;
+	cursor:crosshair;
+}
+#list .li .title{
+	cursor:pointer;
+}
+#list .li .title .time{
+	float:right;
+	font-size:7.5pt;
+	line-height:1em;
+	text-align:right;
+	color:#666;
+}
+#list .li .content{
+	clear:both;
+	display:none;
+	font-size:9pt;
+	border-top:1px dotted #666;
+	padding:5px 0 0;
+	margin:10px 0 0;
+}
+#list .li .content .text{
+	white-space:pre;
+}
+#list .li .content .edit{
+	margin-top:10px;
+	border-top:1px dotted #666;
+	padding-top:5px;
+}
+#list .li .content .editarea{
+	display:none;
+	font-size:9pt;
+	margin-top:10px;
+}
+#list .li .box{
+	margin:5px 0;
+}
+#list .li .colorbox{
+	height:20px;
+}
+#list .li .colorbox a{
+	display:block;
+	float:left;
+	width:20px;
+	height:20px;
+	margin:0 10px 0 0;
+	border:1px solid #ccc;
+}
+#list .li .colorbox a:hover{
+	border:1px solid #000;
+}
+#list .li input.textbox,
+#list .li textarea{
+	border:1px solid #ccc;
+	font-size:10.5pt;
+	font-family:monospace;
+	width:300px;
+}
+#list .li input.shortbox{
+	width:150px;
+}
+#list .li textarea{
+	height:100px;
+}
+#list .li .reminder{
+	clear:both;
+	display:none;
+}
+#list .li .reminder.show{
+	display:block;
+}
+#list .li#task_new{
+	display:none;
+	font-size:9pt;
+}
+
+#list button,
+#buttons button{
+	font-size:9pt;
+	margin:0 5px 0 0;
+	padding:2px 5px 3px;
+	border:none;
+	background:#eeffcc;
+	color:#000;
+	border:1px solid #ccc;
+}
+#list button:hover,
+#buttons button:hover{
+	color:#000;
+	background:#fff;
+}
+
+#template{
+	display:none;
+}
+
+#buttons{
+	margin:10px 0;
+	padding:0 10px;
+}
+
+#welcome{
+	margin:5px 0;
+	padding:5px 10px 10px;
+	background:#efc;
+}
+
+#info{
+	text-align:center;
+	margin:10px;
+}

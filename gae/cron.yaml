@@ -1,0 +1,4 @@
+cron:
+- description: email reminder
+  url: /mail/reminder
+  schedule: every 5 minutes

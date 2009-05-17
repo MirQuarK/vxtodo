@@ -1,0 +1,36 @@
+application: vxtodo
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /
+  script: vxtodo.py
+
+- url: /prism
+  script: vxtodo.py
+
+- url: /(.*\.(vx))
+  script: vxtodo.py
+  login: required
+
+- url: /css
+  static_dir: css
+
+- url: /img
+  static_dir: img
+
+- url: /js
+  static_dir: js
+
+- url: /mail/reminder
+  script: mail.py
+  login: admin
+
+- url: /favicon.ico
+  static_files: img/favicon.ico
+  upload: img/favicon.ico
+
+- url: /robots.txt
+  static_files: txt/robots.txt
+  upload: txt/robots.txt

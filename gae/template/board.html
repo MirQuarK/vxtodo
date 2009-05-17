@@ -1,0 +1,586 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>vxtodo</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript">
+    $(function(){
+        window.vx = {
+            useremail : '{{useremail}}',
+            template : null,
+            colors : {
+                "color0" : 0,
+                "color1" : 1,
+                "color2" : 2,
+                "color3" : 3,
+                "color4" : 4
+            },
+            // 获得DOM ID前缀
+            id : function(s){
+                return s.substring(0, s.indexOf("__"));
+            },
+            // 填充前导零
+            zeroFill : function(n){
+                var t = n.toString();
+                if (t.length < 2)
+                {
+                    t = "0" + t;
+                }
+                return t;
+            },
+            // 过滤器
+            filter : {
+                "status" : 255,
+                "color" : 0,
+                "count" : 0
+            },
+            // 执行过滤
+            dofilter : function(){
+                vx.filter.count = 0;
+                $("#tasklist .li").each(function(i){
+                    var flag = true;
+                    if (vx.filter.status != 255)
+                    {
+                        var cls = $(this).find(".status").attr("className");
+                        var status = (cls.indexOf("todo") > -1) ? 0 : 1;
+                        if (status != vx.filter.status)
+                        {
+                            flag = false;
+                        }
+                    }
+                    if (vx.filter.color != 0)
+                    {
+                        var color = parseInt($(this).attr("className").substr(8));
+                        if (color != vx.filter.color)
+                        {
+                            flag = false;
+                        }
+                    }
+                    if (flag)
+                    {
+                        $(this).slideDown("fast");
+                        vx.filter.count ++;
+                    }
+                    else
+                    {
+                        $(this).slideUp("fast");
+                    }
+                });
+                if (vx.filter.count == 0)
+                {
+                    $("#status").html("没有条目");
+                    $("#status").show("fast");
+                }
+                else
+                {
+                    $("#status").hide("fast");
+                }
+            },
+            // 更新函数
+            update : function(){
+                $.post(
+                    "update.vx",
+                    {},
+                    function(data){
+                        if (data.length > 0)
+                        {
+                            $("#status").hide("fast");
+
+                            var template = vx.template;
+                            var idx = 0;
+                            var html = "";
+                            for (i in data)
+                            {
+                                idx++;
+                                var id = "task_" + idx;
+                                var item = template;
+                                item = item.replace(/%%color%%/g, data[i].color);
+                                item = item.replace(/%%task_id%%/g, id);
+                                item = item.replace(/%%id%%/g, data[i].id);
+                                if(data[i].status == "0")
+                                {
+                                    item = item.replace(/%%todo%%/g, " todo");
+                                    item = item.replace(/%%statustodo%%/g, "checked='checked'");
+                                    item = item.replace(/%%statusdone%%/g, "");
+                                }
+                                else
+                                {
+                                    item = item.replace(/%%todo%%/g, "");
+                                    item = item.replace(/%%statustodo%%/g, "");
+                                    item = item.replace(/%%statusdone%%/g, "checked='checked'");
+                                }
+                                var time = new Date(parseInt(data[i].createtime) * 1000);
+                                var time_str = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                item = item.replace(/%%createtime%%/g, "START: " + time_str);
+                                if (data[i].endtime != "0" && data[i].status != "0")
+                                {
+                                    var time = new Date(parseInt(data[i].endtime) * 1000);
+                                    var time_str = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                    item = item.replace(/%%endtime%%/g, "END: " + time_str);
+                                }
+                                else
+                                {
+                                    item = item.replace(/%%endtime%%/g, "");
+                                }
+                                item = item.replace(/%%title%%/g, data[i].title);
+                                item = item.replace(/%%content%%/g, data[i].content);
+                                if (data[i].email != "None")
+                                {
+                                    item = item.replace(/%%email%%/g, data[i].email);
+                                }
+                                else
+                                {
+                                    item = item.replace(/%%email%%/g, vx.useremail);
+                                }
+                                if (data[i].remindtime != "0")
+                                {
+                                    var time = new Date(parseInt(data[i].remindtime) * 1000);
+                                    var time_str = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                    item = item.replace(/%%remindtime%%/g, time_str);
+
+                                    item = item.replace(/%%reminderdisplay%%/g, ' show');
+
+                                    item = item.replace(/%%reminderon%%/g, " checked='checked'");
+                                }
+                                else
+                                {
+                                    item = item.replace(/%%reminderdisplay%%/g, '');
+                                    item = item.replace(/%%reminderon%%/g, '');
+                                }
+
+                                item = item.replace(/\[/g, "<");
+                                item = item.replace(/\]/g, ">");
+
+                                html += item;
+                            }
+                            $("#tasklist").html(html);
+                        }
+                        else
+                        {
+                            $("#tasklist").html("");
+                            $("#status").html("没有任何条目");
+                            $("#status").show("fast");
+                        }
+                    },
+                    "json"
+                    );
+            },
+            // 初始化函数
+            init : function(){
+                // 点击标题事件
+                $("#list div.title").live('click', function(){
+                    var id = vx.id($(this).attr("id"));
+                    if(id != "task_new")
+                    {
+                        $("#" + id + "__content").slideToggle("fast");
+                    }
+                });
+                // 点击状态图标事件
+                $("#list div.status").live('click', function(){
+                    var icon = $(this);
+                    var id = vx.id(icon.attr("id"));
+                    var d = {};
+                    d.id = $("#" + id + " .task_id").val();
+                    var cls = icon.attr("className");
+                    if (cls.indexOf("todo") == -1)
+                    {
+                        d.status = 0;
+                    }
+                    else
+                    {
+                        d.status = 1;
+                    }
+                    $("#status").html("正在更新...");
+                    $("#status").show("fast");
+                    $.post(
+                        "status.vx",
+                        d,
+                        function(data){
+                            var item = data[0];
+                            if (d.status == 1)
+                            {
+                                icon.removeClass("todo");
+                                var time = new Date(parseInt(item.createtime) * 1000);
+                                var starttime = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                time = new Date(parseInt(item.endtime) * 1000);
+                                var endtime = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                $("#" + id + " div.title div.time").html("START: " + starttime + "<br />END: " + endtime);
+                                $("#" + id + "__status_done").attr("checked", true);
+                            }
+                            else
+                            {
+                                icon.addClass("todo");
+                                var time = new Date(parseInt(item.createtime) * 1000);
+                                var starttime = time.getFullYear() + "-" + vx.zeroFill(time.getMonth() + 1) + "-" + vx.zeroFill(time.getDate()) + " " + vx.zeroFill(time.getHours()) + ":" + vx.zeroFill(time.getMinutes());
+                                $("#" + id + " div.title div.time").html("START: " + starttime);
+                                $("#" + id + "__status_todo").attr("checked", true);
+                            }
+                            $("#status").hide("fast");
+                        },
+                        'json'
+                    );
+                });
+                // 点击颜色图标事件
+                $("#list div.colorbox a").live('click', function(){
+                    var id = vx.id($(this).attr("id"));
+                    $("#" + id).attr("className", "li " + $(this).attr("className"));
+                    $("#" + id + "__color").val(vx.colors[$(this).attr("className")]);
+                });
+                // 提醒功能ON/OFF
+                $("#list input.task_check_remind").live('change', function(){
+                    var b = $(this).attr("checked");
+                    var id = vx.id($(this).attr("id"));
+                    if (b)
+                    {
+                        $("#" + id + " div.reminder").slideDown("fast");
+                        var time = new Date(new Date().getTime() + 86400 * 1000);
+                        if ($("#" + id + "__remind_time").val() == "" || $("#" + id + "__remind_time").val() == "%%remindtime%%")
+                        {
+                            $("#" + id + "__remind_time").val(
+                                time.getFullYear() + "-" + vx.zeroFill((time.getMonth() + 1)) + "-" + vx.zeroFill(time.getDate()) + " " + "09" + ":" + "00"
+                            );
+                        }
+                    }
+                    else
+                    {
+                        $("#" + id + " div.reminder").slideUp("fast");
+                    }
+                });
+                $("#list input.task_check_remind").live('click', function(){
+                    $(this).change();
+                });
+                // 编辑按钮
+                $("#list button.task_edit").live('click', function(){
+                    var id = vx.id($(this).attr("id"));
+                    $("#" + id + " .editarea").slideToggle("fast");
+                    $(this).html($(this).html() == "编辑详细" ? "隐藏编辑" : "编辑详细")
+                });
+                // 删除按钮
+                $("#list button.task_del").live('click', function(){
+                    if(confirm("确认删除？"))
+                    {
+                        var d = {};
+                        var id = vx.id($(this).attr("id"));
+                        d.id = $("#" + id + " .task_id").val();
+
+                        $("#status").html("正在更新...");
+                        $("#status").show("fast");
+                        $.post(
+                            "del.vx",
+                            d,
+                            function(data){
+                                vx.update();
+                            },
+                            'text'
+                        );
+                    }
+                });
+                // 提交按钮事件
+                $("#list button.task_submit").live('click', function(){
+                    var d = {};
+                    var id = vx.id($(this).attr("id"));
+                    
+                    d.title = $("#" + id + "__title_text").val();
+                    if(d.title.length > 50 || d.title.length == 0)
+                    {
+                        alert('标题长度为空或者过长，限制为至少1个至多50个字符');
+                        $("#" + id + "__title_text").focus();
+                        return null;
+                    }
+                    d.title = d.title.replace(/\\/g, "\\\\");
+                    
+                    d.content = $("#" + id + "__content_text").val();
+                    if(d.content.length > 10000 || d.content.length == 0)
+                    {
+                        alert('内容为空或者过长，限制为至少1个至多10000字符');
+                        $("#" + id + "__content_text").focus();
+                        return null;
+                    }
+                    d.content = d.content.replace(/\\/g, "\\\\");
+                    d.content = d.content.replace(/\r\n/g, "\\n");
+                    d.content = d.content.replace(/\r/g, "\\n");
+                    d.content = d.content.replace(/\n/g, "\\n");
+
+                    d.color = $("#" + id + "__color").val();
+
+                    if($("#" + id + "__email_remind").attr("checked"))
+                    {
+                        d.email = $("#" + id + "__email").val();
+                        var email_re = /^.+?@\S+\.\S+$/i;
+                        if(!email_re.test(d.email))
+                        {
+                            alert('错误的email地址');
+                            $("#" + id + "__email").focus();
+                            return null;
+                        }
+
+                        d.remindtime = $("#" + id + "__remind_time").val();
+                        var time_re = /^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2})$/;
+                        if(!time_re.test(d.remindtime))
+                        {
+                            alert('错误的时间，请注意格式为：2009-10-6 09:00');
+                            $("#" + id + "__remind_time").focus();
+                            return null;
+                        }
+                        try{
+                            var time = new Date(0);
+                            time.setFullYear(RegExp.$1, parseInt(RegExp.$2)-1, RegExp.$3);
+                            time.setHours(RegExp.$4);
+                            time.setMinutes(RegExp.$5);
+                            time.setSeconds(0);
+                            d.remindtime = parseInt(time.getTime() / 1000);
+                        }
+                        catch(e)
+                        {
+                            alert('错误的时间，请注意格式为：2009-05-01 08:00');
+                            $("#" + id + "__remind_time").focus();
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        d.remindtime = 0;
+                    }
+
+                    if (id=="task_new")
+                    {
+                        $("#status").html("正在更新...");
+                        $("#status").show("fast");
+                        $.post(
+                            'add.vx',
+                            d,
+                            function(data){
+                                $("#btn_add").html("添加");
+                                $("#task_new").slideUp("fast");
+                                $("#" + id).attr("className", "li color0");
+                                $("#" + id + "__title_text").val("");
+                                $("#" + id + "__content_text").val("");
+                                $("#" + id + "__color").val(0);
+                                $("#" + id + "__email_remind").attr("checked", false);
+                                $("#" + id + "__email").val(vx.useremail);
+                                $("#" + id + "__remind_time").val("");
+                                $("#" + id + " div.reminder").hide();
+                                vx.update();
+                            },
+                            'text'
+                            );
+                    }
+                    else
+                    {
+                        d.status = ($("#" + id + " :radio").attr("checked")) ? 0 : 1;
+
+                        d.id = $("#" + id + " .task_id").val();
+
+                        $("#status").html("正在更新...");
+                        $("#status").show("fast");
+                        $.post(
+                            'edit.vx',
+                            d,
+                            function(data){
+                                vx.update();
+                            },
+                            'text'
+                            );
+                    }
+
+                });
+            }
+        };
+
+        // 添加任务按钮
+        $("#btn_add").click(function(){
+            if($(this).html() == "添加")
+            {
+                $(this).html("取消");
+                $("#task_new").slideDown("fast");
+            }
+            else
+            {
+                $(this).html("添加");
+                $("#task_new").slideUp("fast");
+            }
+        });
+
+        // 展开所有任务
+        $("#btn_expand").click(function(){
+            $(".content").slideDown("fast");
+        });
+
+        // 合上所有任务
+        $("#btn_shrink").click(function(){
+            $(".content").not("#task_new__content").slideUp("fast");
+        });
+
+        // 特效ON/OFF
+        $("#btn_fxtoggle").click(function(){
+            if (!jQuery.fx.off)
+            {
+                jQuery.fx.off = true;
+                $(this).html("效果开启");
+            }
+            else
+            {
+                jQuery.fx.off = false;
+                $(this).html("效果关闭");
+            }
+        });
+
+        // 刷新按钮
+        $("#btn_update").click(function(){
+            $("#status").html("正在更新...");
+            $("#status").show("fast");
+            vx.update();
+        });
+
+        // 状态过滤器点击事件
+        $("#statusfilter a").click(function(){
+            vx.filter.status = parseInt($(this).attr("className").substr(6));
+            vx.dofilter();
+        });
+
+        // 颜色过滤器点击事件
+        $("#colorfilter a").click(function(){
+            vx.filter.color = parseInt($(this).attr("className").substr(5));
+            vx.dofilter();
+        });
+
+        // 读入模板
+        vx.template = $("#template").html();
+        $("#template").html("");
+
+        // 初始化
+        vx.init();
+        vx.update();
+    });
+</script>
+</head>
+<body>
+
+<div id="layout">
+    <div id="title">
+        <img src="img/logo.png" alt="vxtodo logo" />
+    </div>
+    <div id="nav">
+        欢迎, {{user}}
+        <a href="/">回到首页</a>
+        <a href="prism">桌面运行</a>
+        <a href="http://vifix.cn/blog/vxtodo.html">开发日志</a>
+    </div>
+    <div id="tab">
+        <div id="colorfilter">
+            <a href="javascript:;" class="color0" title="显示所有颜色项目"></a>
+            <a href="javascript:;" class="color1" title="仅显示红色项目"></a>
+            <a href="javascript:;" class="color2" title="仅显示绿色项目"></a>
+            <a href="javascript:;" class="color3" title="仅显示黄色项目"></a>
+            <a href="javascript:;" class="color4" title="仅显示蓝色项目"></a>
+        </div>
+        过滤:
+        <div id="statusfilter">
+            <a href="javascript:;" class="status255">[所有]</a>
+            <a href="javascript:;" class="status0">[待办]</a>
+            <a href="javascript:;" class="status1">[完成]</a>
+        </div>
+    </div>
+    <div id="status">
+        正在更新...
+    </div>
+    <div id="list">
+        <div id="tasklist"></div>
+        <div class="li color0" id="task_new">
+            <div class="box">
+                <label for="task_new__title_text">标题</label><br />
+                <input id="task_new__title_text" class="textbox" />
+            </div>
+            <div class="box">
+                <label for="task_new__content_text">内容</label><br />
+                <textarea id="task_new__content_text"></textarea>
+            </div>
+            <div class="colorbox box">
+                <input type="hidden" id="task_new__color" value="0" />
+                <a href="javascript:;" class="color0" title="灰色" id="task_new__color_0"></a>
+                <a href="javascript:;" class="color1" title="红色" id="task_new__color_1"></a>
+                <a href="javascript:;" class="color2" title="绿色" id="task_new__color_2"></a>
+                <a href="javascript:;" class="color3" title="黄色" id="task_new__color_3"></a>
+                <a href="javascript:;" class="color4" title="蓝色" id="task_new__color_4"></a>
+            </div>
+            <div class="box">
+                <label>邮件提醒</label>
+                <input type="checkbox" id="task_new__email_remind" class="task_check_remind" /><label for="task_new__email_remind">开启</label>
+            </div>
+            <div class="reminder box">
+                <label for="task_new__email">提醒Email地址</label><br />
+                <input id="task_new__email" class="shortbox textbox" value="{{useremail}}" /><br />
+                <label for="task_new__remind_time">时间，格式：2009-10-6 09:00</label><br />
+                <input id="task_new__remind_time" class="shortbox textbox" value="" />
+            </div>
+            <div class="submitarea box">
+                <button class="task_submit" id="task_new__submit">提交</button>
+            </div>
+        </div>
+    </div>
+    <div id="buttons">
+        <button id="btn_add">添加</button> <button id="btn_update">刷新</button> <button id="btn_expand">全部展开</button> <button id="btn_shrink">全部收缩</button> <button id="btn_fxtoggle">效果关闭</button>
+    </div>
+
+    <div id="info">
+        Powered by <a href="http://vifix.cn">vifix.cn</a>
+    </div>
+</div>
+
+<div id="template">
+[div class='li color%%color%%' id='%%task_id%%']
+    [input class='task_id' type='hidden' value='%%id%%' /]
+    [div class='status%%todo%%' id='%%task_id%%__status_icon'][/div]
+    [div class='title' id='%%task_id%%__title']
+        [div class='time']
+            %%createtime%%[br /]
+            %%endtime%%
+        [/div]
+        %%title%%
+    [/div]
+    [div class='content' id='%%task_id%%__content']
+        [div class='text']%%content%%[/div]
+        [div class='edit']
+            修改状态:
+            [input type='radio' name='%%task_id%%__status' value='0' id='%%task_id%%__status_todo' %%statustodo%% /][label for='%%task_id%%__status_todo']待办[/label]
+            [input type='radio' name='%%task_id%%__status' value='1' id='%%task_id%%__status_done' %%statusdone%% /][label for='%%task_id%%__status_done']完成[/label]
+            [div class='editarea']
+                [div class='box']
+                    [label for='%%task_id%%__title_text']标题[/label][br /]
+                    [input id='%%task_id%%__title_text' class='textbox' value='%%title%%' /]
+                [/div]
+                [div class='box']
+                    [label for='%%task_id%%__content_text']内容[/label][br /]
+                    [textarea id='%%task_id%%__content_text']%%content%%[/textarea]
+                [/div]
+                [div class='colorbox box']
+                    [input type='hidden' id='%%task_id%%__color' value='%%color%%' /]
+                    [a href='javascript:;' class='color0' title='灰色' id='%%task_id%%__color_0'][/a]
+                    [a href='javascript:;' class='color1' title='红色' id='%%task_id%%__color_1'][/a]
+                    [a href='javascript:;' class='color2' title='绿色' id='%%task_id%%__color_2'][/a]
+                    [a href='javascript:;' class='color3' title='黄色' id='%%task_id%%__color_3'][/a]
+                    [a href='javascript:;' class='color4' title='蓝色' id='%%task_id%%__color_4'][/a]
+                [/div]
+                [div class='box']
+                    [label]邮件提醒[/label]
+                    [input type='checkbox' id='%%task_id%%__email_remind' class='task_check_remind' %%reminderon%%/][label for='%%task_id%%__email_remind']开启[/label]
+                [/div]
+                [div class='reminder box%%reminderdisplay%%']
+                    [label for='%%task_id%%__email']提醒Email地址[/label][br /]
+                    [input id='%%task_id%%__email' class='shortbox textbox' value='%%email%%' /][br /]
+                    [label for='%%task_id%%__remind_time']时间，格式：2009-10-6 09:00[/label][br /]
+                    [input id='%%task_id%%__remind_time' class='shortbox textbox' value='%%remindtime%%' /]
+                [/div]
+            [/div]
+            [div class='submitarea box']
+                [button id='%%task_id%%__submit' class='task_submit']提交[/button] [button id='%%task_id%%__edit' class='task_edit']编辑详细[/button] [button id='%%task_id%%__del' class='task_del']删除[/button]
+            [/div]
+        [/div]
+    [/div]
+[/div]
+</div>
+
+</body>
+</html>

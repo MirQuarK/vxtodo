@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>vxtodo</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div id="layout">
+    <div id="title">
+        <img src="img/logo.png" alt="vxtodo logo" />
+    </div>
+    <div id="nav">
+        <a href="/">回到首页</a>
+        {% ifequal login 0 %}
+        <a href="board.vx">使用Google账户登录使用</a>
+        {% else %}
+        <a href="board.vx">个人面板</a>
+        {% endifequal %}
+        <a href="http://vifix.cn/blog/vxtodo.html">开发日志</a>
+    </div>
+    <div id="welcome">
+        <p style="text-align:center;">
+            <img src="img/prism.jpg" alt="" />
+        </p>
+        <p>
+            <strong>Prism</strong>是Mozilla Labs推出的一个将“网站”转化为“桌面应用程序”的工具，可以使用它将vxtodo放置在桌面以便随时访问。
+        </p>
+        <p>
+            Prism网站：<a href="http://prism.mozilla.com/">http://prism.mozilla.com/</a><br />
+            Prism下载：<a href="http://prism.mozilla.com/started/">http://prism.mozilla.com/started/</a><br />
+            可以选择针对Firefox用户的插件版本，或者非Firefox用户的独立版本
+        </p>
+        <p>
+            <strong>Firefox 插件版安装使用：</strong><a href="javascript:;" onclick="document.getElementById('ff_use').style.display=(document.getElementById('ff_use').style.display == 'none') ? 'block' : 'none'">[显示/隐藏]</a><br />
+            <span id="ff_use" style="display:none">
+            打开vxtodo的个人面板后，在Firefox的Tools（工具）菜单 -> Convert Website to Application<br />
+            <img src="img/ff_use.gif" alt="" /><br />
+            选择是否在桌面显示图标以及最小化到通知区域等适合自己的选项，然后OK确认<br />
+            <img src="img/ff_use2.gif" alt="" /><br />
+            </span>
+        </p>
+        <p>
+            <strong>独立版安装使用：</strong><a href="javascript:;" onclick="document.getElementById('indep_use').style.display=(document.getElementById('indep_use').style.display == 'none') ? 'block' : 'none'">[显示/隐藏]</a><br />
+            <span id="indep_use" style="display:none">
+            下载，解压运行Prism<br />
+            <img src="img/indep_use.gif" alt="" /><br />
+            输入URL为http://vxtodo.ihfs.net/board.vx，名称可以自定义<br />
+            然后选择是否在桌面显示图标以及最小化到通知区域等适合自己的选项，然后OK确认<br />
+            </span>
+        </p>
+        <p>
+            <strong>删除程序：</strong><br />只要删除图标即可
+        </p>
+    </div>
+    <div id="info">
+        Powered by <a href="http://vifix.cn">vifix.cn</a><br />
+        <img src="http://code.google.com/appengine/images/appengine-noborder-120x30.gif" alt="Google App Engine 支持" />
+    </div>
+</div>
+
+</body>
+</html>
