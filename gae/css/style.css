@@ -180,7 +180,8 @@ form{
 	margin:10px 0 0;
 }
 #list .li .content .text{
-	white-space:pre;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 #list .li .content .edit{
 	margin-top:10px;
